@@ -10,3 +10,8 @@ It should:
 I briefly touched on reading/writing to files in the Rustbook but this is my own exeriment to learn how it all works for my own usage. Being able to quickly add notes and journal entries as I work with my own program would be pretty fun. 
 
 I'll keep the development log updated from here:
+
+Day 1:
+Added the feature to locate a file and append to it. It will append your entry with a date and time stamp.
+
+Tomorrow i want to add the ability to create a .json file if you don't already have one. 
