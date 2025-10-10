@@ -15,3 +15,5 @@ Day 1:
 Added the feature to locate a file and append to it. It will append your entry with a date and time stamp.
 
 Tomorrow i want to add the ability to create a .json file if you don't already have one. 
+
+Day 2:
