@@ -17,3 +17,5 @@ Added the feature to locate a file and append to it. It will append your entry w
 Tomorrow i want to add the ability to create a .json file if you don't already have one. 
 
 Day 2:
+
+Added the feature to create a .json file if you don't already have one. It will automatically prompt you to create your first entry too. Tomorrow I want to add a loop so you can make additional entries without re-running the program each time.
