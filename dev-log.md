@@ -19,3 +19,7 @@ Tomorrow i want to add the ability to create a .json file if you don't already h
 Day 2:
 
 Added the feature to create a .json file if you don't already have one. It will automatically prompt you to create your first entry too. Tomorrow I want to add a loop so you can make additional entries without re-running the program each time.
+
+Day 3:
+
+Added the loop. You can now add more entries if you wish. Next I want to add the ability to delete entries but I'm not sure the best way of doing that. Line by line perhaps? Delete entry 2, etc? I'll need to consider the options for this.
