@@ -43,28 +43,43 @@ fn main() {
         }
     }
 
-    //Now to let the user add to the file. It should append to the end of the file with a date and time stamp.
-    print!("Add your entry, darling!: ");
-    io::stdout().flush().unwrap();
-    let mut journal_entry = String::new();
-    
-    // Reads the user input for the journal entry. If it fails, it will panic with an error message.
-    stdin().read_line(&mut journal_entry).expect("Failed to read line");
-    // Appends the entry to the end with a timestamp.
+    loop {
+        //Now to let the user add to the file. It should append to the end of the file with a date and time stamp.
+        print!("Add your entry, darling!: ");
+        io::stdout().flush().unwrap();
+        let mut journal_entry = String::new();
+        
+        // Reads the user input for the journal entry. If it fails, it will panic with an error message.
+        stdin().read_line(&mut journal_entry).expect("Failed to read line");
+        // Appends the entry to the end with a timestamp.
 
-    let text_to_append = journal_entry.trim();
-    let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
-    let entry = format!("[{}] {}\n", timestamp, text_to_append);
-    match fs::OpenOptions::new().append(true).open(path) {
-        Ok(mut file) => {
-            if let Err(e) = writeln!(file, "{}", entry) {
-                eprintln!("Error writing to file '{}': {}", path, e);
-            } else {
-                println!("Successfully appended to the file.");
+        let text_to_append = journal_entry.trim();
+        let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
+        let entry = format!("[{}] {}\n", timestamp, text_to_append);
+        match fs::OpenOptions::new().append(true).open(path) {
+            Ok(mut file) => {
+                if let Err(e) = writeln!(file, "{}", entry) {
+                    eprintln!("Error writing to file '{}': {}", path, e);
+                } else {
+                    println!("Successfully appended to the file.");
+                }
             }
+            Err(e) => eprintln!("Error opening file '{}': {}", path, e),
         }
-        Err(e) => eprintln!("Error opening file '{}': {}", path, e),
-    }
+        // Asks if the user would like to add another entry
+        print!("Would you like to add another entry? (y/n)");
+        io::stdout().flush().unwrap();
+
+        let mut repeat_input = String::new();
+        stdin().read_line(&mut repeat_input).expect("Failed to read line");
+        // If they say yes, repeat. If no, break the loop.
+            if repeat_input.trim().eq_ignore_ascii_case("y") {
+
+            } else {
+                print!("Very well, farewell, darling!");
+                break;
+            }
+}   
 
 
 }
