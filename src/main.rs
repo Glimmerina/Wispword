@@ -1,7 +1,19 @@
 use std::fs;
 use std::io::{self, stdin, Write};
+// I'm about to adjust the code to use serde functions. This will allow the code to insert serialised entries which can be indexed and deleted later.
+// I anticipate this will break a lot of code. Fingers crossed.
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
+struct JournalEntry {
+    timestamp: String,  
+    entry: String,
+}
 
 fn main() {
+    // Defines the vector for journal entries. We need this in full scope at all times so it goes here.
+    let mut entries: Vec<JournalEntry> = Vec::new();
+
     // Asks the user for a file path. Then flushes stdout to ensure the prompt is displayed immediately.
     print!("Enter the path to your file: ");
     io::stdout().flush().unwrap();
@@ -18,7 +30,11 @@ fn main() {
 
     match fs::read_to_string(path) {
         // If it finds the file, all is well.
-        Ok(_) => println!("File found."),
+        Ok(contents) => { 
+            println!("File found.");
+            // Then reads the entries in the journal.
+            entries = serde_json::from_str(&contents).unwrap_or_default();
+            }
         Err(e) => {
             // If it doesn't find the file, it will ask if you want to create it.
             eprintln!("Could not find file at '{}': {}", path, e);
@@ -41,7 +57,8 @@ fn main() {
                 return;
             }
         }
-    }
+        }
+    
 
     loop {
         //Now to let the user add to the file. It should append to the end of the file with a date and time stamp.
@@ -51,23 +68,21 @@ fn main() {
         
         // Reads the user input for the journal entry. If it fails, it will panic with an error message.
         stdin().read_line(&mut journal_entry).expect("Failed to read line");
-        // Appends the entry to the end with a timestamp.
 
-        let text_to_append = journal_entry.trim();
-        let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
-        let entry = format!("[{}] {}\n", timestamp, text_to_append);
-        match fs::OpenOptions::new().append(true).open(path) {
-            Ok(mut file) => {
-                if let Err(e) = writeln!(file, "{}", entry) {
-                    eprintln!("Error writing to file '{}': {}", path, e);
-                } else {
-                    println!("Successfully appended to the file.");
-                }
-            }
-            Err(e) => eprintln!("Error opening file '{}': {}", path, e),
-        }
+        // Appends the entry to the end with a timestamp.
+        let new_entry = JournalEntry {
+            timestamp: chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+            entry: journal_entry.trim().to_string(),
+        };          
+
+        entries.push(new_entry);
+        let json = serde_json::to_string_pretty(&entries).unwrap();
+        fs::write(path, json).unwrap();
+        // Notifies the user their entry was saved.
+        println!("Successfully saved your entry to the file.");
+
         // Asks if the user would like to add another entry
-        print!("Would you like to add another entry? (y/n)");
+        print!("Would you like to add another entry? (y/n)  ");
         io::stdout().flush().unwrap();
 
         let mut repeat_input = String::new();
