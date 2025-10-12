@@ -1,0 +1,10 @@
+[
+  {
+    "timestamp": "2025-10-12 21:10:12",
+    "entry": "This is step 1 in serialization"
+  },
+  {
+    "timestamp": "2025-10-12 21:10:19",
+    "entry": "This is step 2 in seralization"
+  }
+]
