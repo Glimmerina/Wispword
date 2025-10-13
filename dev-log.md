@@ -23,3 +23,11 @@ Added the feature to create a .json file if you don't already have one. It will 
 Day 3:
 
 Added the loop. You can now add more entries if you wish. Next I want to add the ability to delete entries but I'm not sure the best way of doing that. Line by line perhaps? Delete entry 2, etc? I'll need to consider the options for this.
+
+Day 4: 
+
+Added serialization. Now it adds serialized entries, so it should be easier to select and delete entries.
+
+Day 5:
+
+Updated the code to only work with .json files. It has checks in place to ensure you always use .json files. You also don't have to type .json into your entry, it automatically does it for you!
