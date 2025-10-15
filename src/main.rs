@@ -1,11 +1,11 @@
 use std::fs;
 use std::io::{self, stdin, Write};
-// I'm about to adjust the code to use serde functions. This will allow the code to insert serialised entries which can be indexed and deleted later.
-// I anticipate this will break a lot of code. Fingers crossed.
-// Later update: It worked! Hoozah!
+
+// Uses the serde crate for serialization and deserialization of the .json file.
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
+// Defines the structure of a journal entry with a timestamp and the actual content of the entry.
 struct JournalEntry {
     timestamp: String,  
     entry: String,
@@ -18,6 +18,8 @@ fn main() {
     //Defines the path variable for the file path. Outside the loop so it stays in scope.
     let path: String;
 
+    // So originally this loop was used to ensure the user input a valid path.
+    // It's redundant now and should be removed. 
     loop {
         // Asks the user for a file path. Then flushes stdout to ensure the prompt is displayed immediately.
         print!("Enter the path to your file: ");
@@ -93,6 +95,7 @@ fn main() {
             entry: journal_entry.trim().to_string(),
         };          
 
+        // Serializes the entry into .json format and writes it to the file.
         entries.push(new_entry);
         let json = serde_json::to_string_pretty(&entries).unwrap();
         fs::write(&path, json).unwrap();
