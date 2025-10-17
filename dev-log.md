@@ -31,3 +31,12 @@ Added serialization. Now it adds serialized entries, so it should be easier to s
 Day 5:
 
 Updated the code to only work with .json files. It has checks in place to ensure you always use .json files. You also don't have to type .json into your entry, it automatically does it for you!
+
+Day 6:
+
+The code has been refactored to include loops for repetition. The software is fully functional! You can search for files, create them and add entries to them at will! Huzzah!
+
+Day 7:
+The work on V2 has now begun. After fighting with github branches, I decided to instead rename the rust file to V1 and create a new main.rs that will serve as V2. I dislike branches on git, I don't ever want to merge into main, I want to be able to maintain two concurrent versions with different features and it seems like a new repository is the only "hygienic" way to do it? Bleh.
+
+V2 will have command line functionality so you can call the code whenever you want to. Eg, in your terminal, "Wispword journal entry here", with Wispword acting as the keyword to execute the software and every word after being your journal entry. It will take a full rebuild I think, as I now need the env::args crate and a globalised config system. This is gonna be a challenge.
