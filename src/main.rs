@@ -13,7 +13,29 @@ struct JournalEntry {
     entry: String,
 }
 
+#[derive(Parser)]
+struct Cli {
+    #[clap(required = true, help = "The journal entry to be added")]
+    entry: String,
+}
+
 fn main() {
-    // Time for a fresh start!
+    // First to set up the command line arguement parse so the user can call the program by just typing in "Wispword" followed by their entry.
+    // If the Wispword command is called, anything that follows is treated as the journal entry.
+
+    // Parse the command line arguments
+    let args = Cli::parse();
+
+    if args.entry.trim().is_empty() {
+        eprintln!("Error: Journal entry cannot be empty.");
+        std::process::exit(1);
+    }
+
+    // Next we need to set up the journal file path and check if it exists, if not we create it.
+    let journal_path = Path::new("journal.json");
+    if !journal_path.exists() {
+        fs::File::create(journal_path).expect("Failed to create journal file");
+    }
+
 
 }
