@@ -9,13 +9,19 @@ use serde::{Serialize, Deserialize};
 struct JournalEntry {
     timestamp: String,  
     entry: String,
+    // Adding the ability to add a tag to each journal entry if desired. That way you can filter by tag later on.
+    tag: Option<String>,
 }
 
 #[derive(Parser)]
 struct Cli {
-    #[clap(required = true, help = "The journal entry to be added")]
-    #[arg(required = true)]
+    // The first required argue ment is the journal entry itself.
+    #[arg(required = true, help = "The journal entry to be added")]
     entry: Vec<String>,
+
+    // An optional arguement to allow the user to add a tag if they want to.
+    #[arg(short, long, help = "Optional tag for this entry (e.g. bug, idea, note)")]
+    tag: Option<String>,
 }
 
 fn main() {
@@ -43,6 +49,8 @@ fn main() {
         // Updated timestamp, no longer uses rfc3339 format, it's silly and not human friendly.
         timestamp: chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
         entry: combined_entry,
+        // Now also includes the optional tag in the journal entry.
+        tag: args.tag,
     };
 
     // Reads the journal file, reads the existing entries, appends the new entry, and writes it back to the file.
