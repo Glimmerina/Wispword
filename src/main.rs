@@ -22,6 +22,10 @@ struct Cli {
     // An optional arguement to allow the user to add a tag if they want to.
     #[arg(short, long, help = "Optional tag for this entry (e.g. bug, idea, note)")]
     tag: Option<String>,
+
+    // An optional flag to display all unique tags in the journal.
+    #[arg(long, help = "Display all unique tags in the journal")]
+    show_tags: bool,
 }
 
 fn main() {
@@ -30,6 +34,47 @@ fn main() {
 
     // Parse the command line arguments
     let args = Cli::parse();
+
+    // If the user has specified the show_tags flag, we read the journal file and display all unique tags.
+    if args.show_tags {
+    let journal_path = Path::new("journal.json");
+
+    // If the journal file doesn't exist, we inform the user and exit. This prevents errors or crashing.
+    if !journal_path.exists() {
+        eprintln!("No journal found.");
+        std::process::exit(1);
+    }
+
+    // Read the journal file and deserialize the entries
+    let content = fs::read_to_string(journal_path)
+        .expect("Failed to read journal file");
+
+    // Deserialize the journal entries, defaulting to an empty vector if parsing fails
+    let entries: Vec<JournalEntry> = serde_json::from_str(&content)
+        .unwrap_or_default();
+
+    // Collect unique tags from the entries
+    let mut tags = entries.iter()
+        .filter_map(|e| e.tag.as_ref())
+        .collect::<Vec<_>>();
+
+    // Sort and deduplicate the tags
+    tags.sort();
+    tags.dedup();
+    
+    // Display the tags to the user
+    if tags.is_empty() {
+        println!("No tags found in journal.");
+    } else {
+        println!("Tags used in your journal:");
+        for tag in tags {
+            println!("- {}", tag);
+        }
+    }
+
+    // Exit after displaying tags
+    return; 
+    }
 
     // Combine the entry vector into a single string
     let combined_entry = args.entry.join(" ");
