@@ -2,6 +2,13 @@ Wispword is a terminal based journaling program for making quick notes on the fl
 
 It allows you to write serialized entries into a .json journal whenever you need it! Each entry is date and timestamped for your convenience too!
 
+Version 2:
+Version 2 is now CLI based, no more having to execute the program every time! Simply type Wispword, followed by your journal entry, and it will add it to your journal! You can also add tags to entries if you need them (Eg Bug, Error, Warning, Success, or whatever is most applicable to what you're using it for!) by adding -- tagnamehere after your entry! 
+
+You cannot currently name your journal or set a current directory for it, but fear not, the feature is coming! Along with the ability to read your journal based on dates or tags, or even the full thing!
+
+Version 1:
+
 Run Wispword to begin, it will ask for the location of your journal. If you have one, type its name! If not, don't worry, just type the name of what you would like to call your journal and Wispword will ask if you'd like it to make it for you! Also no need to worry about file extensions, Wispword automatically adds the .json extension for you!
 
 After you've selected your journal, you will be prompted to write your entry, so write away, darling! 
