@@ -15,7 +15,7 @@ struct JournalEntry {
 
 #[derive(Parser)]
 struct Cli {
-    // The first required argue ment is the journal entry itself.
+    // The first required arguement is the journal entry itself.
     #[arg(required = true, help = "The journal entry to be added")]
     entry: Vec<String>,
 
@@ -26,6 +26,10 @@ struct Cli {
     // An optional flag to display all unique tags in the journal.
     #[arg(long, help = "Display all unique tags in the journal")]
     show_tags: bool,
+
+    // An arguement to read the journal entries.
+    #[arg(long, help = "Used to read the journal entries")]
+    read: bool,
 }
 
 fn main() {
@@ -76,6 +80,41 @@ fn main() {
     return; 
     }
 
+    // If the user has specified the read flag, we read and display all journal entries.
+    // God I need to refactor this. What am I doing. Why is everything in main. Brad, I'm sorry.
+    if args.read {
+    let journal_path = Path::new("journal.json");
+
+    // Checks to see if the journal exists. If not, exit.
+    // Later I will fix this to check earlier and create the journal if it doesn't exist.
+    if !journal_path.exists() {
+        eprintln!("No journal file found.");
+        std::process::exit(1);
+    }
+
+    // Read the journal file and deserialize the entries
+    let content = fs::read_to_string(journal_path).expect("Failed to read journal file");
+    let entries: Vec<JournalEntry> = serde_json::from_str(&content).expect("Failed to parse journal");
+
+    // If the journal is empty, inform the user. Otherwise, display all entries.
+    if entries.is_empty() {
+        println!("Your journal is empty.");
+    } else {
+        println!("\n📝 Your Journal Entries:\n");
+
+        // For each entry, display the timestamp, tag (if any), and the entry text.
+        // Does this actually help? Do we need the metadata or just the entry? Eh, we'll test and find out what works best.
+        for (i, entry) in entries.iter().enumerate() {
+            println!("Entry {}:", i + 1);
+            println!("  Date: {}", entry.timestamp);
+            println!("  Tag: {}", entry.tag.as_deref().unwrap_or("None"));
+            println!("  Text: {}\n", entry.entry);
+        }
+    }
+
+    return; // Exit after reading
+}
+    
     // Combine the entry vector into a single string
     let combined_entry = args.entry.join(" ");
     if combined_entry.trim().is_empty() {
