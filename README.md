@@ -5,7 +5,7 @@ It allows you to write serialized entries into a .json journal whenever you need
 Version 2:
 Version 2 is now CLI based, no more having to execute the program every time! Simply type Wispword, followed by your journal entry, and it will add it to your journal! You can also add tags to entries if you need them (Eg Bug, Error, Warning, Success, or whatever is most applicable to what you're using it for!) by adding -- tagnamehere after your entry! 
 
-You cannot currently name your journal or set a current directory for it, but fear not, the feature is coming! Along with the ability to read your journal based on dates or tags, or even the full thing!
+You can now read your code by using the --read suffix! It can't filter individual tags or dates yet, but that's next!
 
 Version 1:
 
