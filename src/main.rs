@@ -15,8 +15,8 @@ struct JournalEntry {
 
 #[derive(Parser)]
 struct Cli {
-    // The first required arguement is the journal entry itself.
-    #[arg(required = true, help = "The journal entry to be added")]
+    // The first arguement is the journal itself. No longer required, as it would prevent the Read command from working.
+    #[arg(required = false, help = "The journal entry to be added")]
     entry: Vec<String>,
 
     // An optional arguement to allow the user to add a tag if they want to.
@@ -114,7 +114,13 @@ fn main() {
 
     return; // Exit after reading
 }
-    
+
+    // If no entry is provided AND --read wasn't used, inform the user and exit. One condition has to be true.
+    if args.entry.is_empty() {
+        eprintln!("Error: You must either provide a journal entry or use --read to view entries.");
+        std::process::exit(1);
+    }
+        
     // Combine the entry vector into a single string
     let combined_entry = args.entry.join(" ");
     if combined_entry.trim().is_empty() {
