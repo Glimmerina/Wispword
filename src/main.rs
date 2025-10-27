@@ -30,6 +30,11 @@ struct Cli {
     // An arguement to read the journal entries.
     #[arg(long, help = "Used to read the journal entries")]
     read: bool,
+
+    // An optional arguement to filter journal entries by a specific tag when reading. Fingers crossed this works.
+    #[arg(long, help = "Filter journal entries by a specific tag")]
+    filter_tag: Option<String>,
+
 }
 
 fn main() {
@@ -96,22 +101,31 @@ fn main() {
     let content = fs::read_to_string(journal_path).expect("Failed to read journal file");
     let entries: Vec<JournalEntry> = serde_json::from_str(&content).expect("Failed to parse journal");
 
-    // If the journal is empty, inform the user. Otherwise, display all entries.
-    if entries.is_empty() {
-        println!("Your journal is empty.");
+    // If a filter tag is provided, filter the entries accordingly
+   let filtered_entries: Vec<_> = match &args.filter_tag {
+        Some(tag) => entries
+            .into_iter()
+            .filter(|entry| entry.tag.as_deref() == Some(tag.as_str()))
+            .collect(),
+        None => entries,
+    };
+
+    // Display the entries to the user. If a filter was applied and no entries found, inform the user.
+    if filtered_entries.is_empty() {
+        match &args.filter_tag {
+            Some(tag) => println!("No entries found with tag '{}'.", tag),
+            None => println!("Your journal is empty."),
+        }
     } else {
         println!("\n📝 Your Journal Entries:\n");
 
-        // For each entry, display the timestamp, tag (if any), and the entry text.
-        // Does this actually help? Do we need the metadata or just the entry? Eh, we'll test and find out what works best.
-        for (i, entry) in entries.iter().enumerate() {
+        for (i, entry) in filtered_entries.iter().enumerate() {
             println!("Entry {}:", i + 1);
             println!("  Date: {}", entry.timestamp);
             println!("  Tag: {}", entry.tag.as_deref().unwrap_or("None"));
             println!("  Text: {}\n", entry.entry);
         }
     }
-
     return; // Exit after reading
 }
 
