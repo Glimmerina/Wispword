@@ -40,3 +40,9 @@ Day 7:
 The work on V2 has now begun. After fighting with github branches, I decided to instead rename the rust file to V1 and create a new main.rs that will serve as V2. I dislike branches on git, I don't ever want to merge into main, I want to be able to maintain two concurrent versions with different features and it seems like a new repository is the only "hygienic" way to do it? Bleh.
 
 V2 will have command line functionality so you can call the code whenever you want to. Eg, in your terminal, "Wispword journal entry here", with Wispword acting as the keyword to execute the software and every word after being your journal entry. It will take a full rebuild I think, as I now need the env::args crate and a globalised config system. This is gonna be a challenge.
+
+Lost track of which day it is. I wasn't good at keeping this updated. Woops.
+
+V2 is now Command Line based, no more running the application.
+
+I'm in the process of refactoring it because at the moment all the code lives in fn main() and my friend Brad will yell at me if he notices. It will be sorted soon.
