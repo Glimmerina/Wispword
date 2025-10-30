@@ -36,16 +36,7 @@ struct Cli {
     filter_tag: Option<String>,
 
 }
-
-fn main() {
-    // First to set up the command line arguement parse so the user can call the program by just typing in "Wispword" followed by their entry.
-    // If the Wispword command is called, anything that follows is treated as the journal entry.
-
-    // Parse the command line arguments
-    let args = Cli::parse();
-
-    // If the user has specified the show_tags flag, we read the journal file and display all unique tags.
-    if args.show_tags {
+fn load_entries() {
     let journal_path = Path::new("journal.json");
 
     // If the journal file doesn't exist, we inform the user and exit. This prevents errors or crashing.
@@ -55,8 +46,37 @@ fn main() {
     }
 
     // Read the journal file and deserialize the entries
-    let content = fs::read_to_string(journal_path)
-        .expect("Failed to read journal file");
+    let content = fs::read_to_string(journal_path);
+    serde_json::from_str(&content).unwrap_or_else(|_| {
+        eprintln!("Failed to read journal file");
+        Vec::new()
+    });
+}
+
+fn save_entries() {
+
+}
+
+fn display_entries() {
+    
+}
+
+fn display_tags() {
+
+}
+
+fn filter_by_tag(){
+    
+}
+fn main() {
+    // First to set up the command line arguement parse so the user can call the program by just typing in "Wispword" followed by their entry.
+    // If the Wispword command is called, anything that follows is treated as the journal entry.
+
+    // Parse the command line arguments
+    let args = Cli::parse();
+
+    // If the user has specified the show_tags flag, we read the journal file and display all unique tags.
+    if args.show_tags {
 
     // Deserialize the journal entries, defaulting to an empty vector if parsing fails
     let entries: Vec<JournalEntry> = serde_json::from_str(&content)
