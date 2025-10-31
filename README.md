@@ -1,5 +1,8 @@
 Wispword is a terminal based journaling program for making quick notes on the fly!
 
+**WARNING**
+Refactoring is currently in progress! The main.rs script DOES NOT WORK just yet! If you wish to use this app, please delete main.rs from your local files and rename v1 or v2 to main.rs. Run that, it will work!
+
 It allows you to write serialized entries into a .json journal whenever you need it! Each entry is date and timestamped for your convenience too!
 
 Version 2:
