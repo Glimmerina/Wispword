@@ -5,6 +5,12 @@ use std::path::Path;
 use clap::Parser;
 use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize)]
+// Setting up a config struct so we can load directory paths from a config file. Globalise the code!
+struct Config {
+    journal_path: String,
+}
+
 // Defines the structure of a journal entry with a timestamp, the actual content of the entry, and an optional tag.
 #[derive(Serialize, Deserialize)]
 struct JournalEntry {
