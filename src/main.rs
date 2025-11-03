@@ -22,6 +22,7 @@ struct JournalEntry {
 #[derive(Parser)]
 struct Cli {
     // Allows arguements for the entry, a tag if desired, the option to show tags, read entries, and filter by tag.
+    // Now also has an option to set the journal path and update the config file.
     #[arg(required = false, help = "The journal entry to be added")]
     entry: Vec<String>,
 
@@ -36,18 +37,39 @@ struct Cli {
 
     #[arg(long, help = "Filter journal entries by a specific tag")]
     filter_tag: Option<String>,
+
+    #[arg(long, help = "Set the path to the journal file and update config")]
+    set_journal: Option<String>,
 }
 
 fn main() {
+
+    // First to set up the command line argument parser so the user can call the program by just typing in "Wispword" followed by their entry.
+    // If the Wispword command is called, anything that follows is treated as the journal entry.
+
     // Parse the command line arguments and get the journal path.
     let args = Cli::parse();
-    let journal_path = Path::new("journal.json");
+    let config = load_or_create_config();
+    let journal_path = Path::new(&config.journal_path);
 
     // If the user requested to show tags, then show them.
     if args.show_tags {
         show_tags(journal_path);
         return;
     }
+
+    // If the user wants to set a new journal path, update the config file and exit.
+    if let Some(new_path) = &args.set_journal {
+        let config_path = get_config_path();
+        let config = Config {
+            journal_path: new_path.clone(),
+        };
+
+    let serialized = serde_json::to_string_pretty(&config).expect("Failed to serialize config");
+    fs::write(config_path, serialized).expect("Failed to write updated config");
+    println!("Updated journal path to '{}'", new_path);
+    return;
+}
 
     // If the user prompted to read entries, then read them. If they gave a filter tag, apply it.
     if args.read {
@@ -174,4 +196,48 @@ fn add_entry(journal_path: &Path, entry_text: String, tag: Option<String>) {
     // Write the serialized entries back to the journal file.
     fs::write(journal_path, serialized).expect("Failed to write to journal file");
     println!("Journal entry added successfully, darling!");
+}
+
+fn get_config_path() -> std::path::PathBuf {
+    // Constructs the path to the config file in the user's Documents/Wispword directory.
+    let mut path = dirs::document_dir().expect("Could not find Documents directory");
+    // Ensure the Wispword directory is included in the path.
+    path.push("Wispword");
+    path.push("config.json");
+    path
+}
+
+fn load_or_create_config() -> Config {
+    // Loads the config file if it exists, otherwise creates a default config file.
+    let config_path = get_config_path();
+
+    // If the config file exists, read and parse it.
+    if config_path.exists() {
+        let content = fs::read_to_string(&config_path)
+            .expect("Failed to read config file");
+        serde_json::from_str(&content)
+            .expect("Failed to parse config file")
+    // If it doesn't exist, create a default config file.
+    } else {
+        // Create a default journal path in Documents/Wispword/journal.json
+        let mut default_path = dirs::document_dir().expect("Could not find Documents directory");
+        default_path.push("Wispword");
+        default_path.push("journal.json");
+
+        // Create the default config struct.
+        let config = Config {
+            journal_path: default_path.to_string_lossy().to_string(),
+        };
+
+        // Ensure the parent directory exists.
+        if let Some(parent) = config_path.parent() {
+            fs::create_dir_all(parent).expect("Failed to create Wispword config directory");
+        }
+
+        // Serialize and write the default config to the config file.
+        let serialized = serde_json::to_string_pretty(&config).expect("Failed to serialize config");
+        fs::write(&config_path, serialized).expect("Failed to write config file");
+
+        config
+    }
 }
