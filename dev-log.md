@@ -46,3 +46,5 @@ Lost track of which day it is. I wasn't good at keeping this updated. Woops.
 V2 is now Command Line based, no more running the application.
 
 I'm in the process of refactoring it because at the moment all the code lives in fn main() and my friend Brad will yell at me if he notices. It will be sorted soon.
+
+It's now fully refactored! The code no longer all lives in main!
