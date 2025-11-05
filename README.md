@@ -7,7 +7,16 @@ Version 2 is now CLI based, no more having to execute the program every time! Si
 
 It will automatically create a Wispword folder in your documents that includes a config file. This tells Wispword where your journal file is located. You can update it with --Set-journal followed by the diectory!
 
-You can now read your code by using the --read --filter-tag TagNameHere! It will display all the tags from your journal with the tag you enter! 
+List of commands (To be updated when this can be installed as a CLI tool)
+
+Make an entry: Cargo run [Journal Text Goes here]
+Make an entry with a tag: Cargo run [Journal Text Goes Here] --tag [Tag Name Goes Here]
+Read your journal: Cargo run --read
+Read your journal but filter by tag: Cargo run --read --filter-tag [Tag Name Goes Here]
+Read journal but only show tags: Cargo run -- --show-tags
+Change your journal location: Cargo run -- --set-journal [Directory Name here]
+
+So far I think this will only work on Mac, but I can test it and find out!
 
 Version 1:
 
