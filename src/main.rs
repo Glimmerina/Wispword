@@ -40,6 +40,9 @@ struct Cli {
 
     #[arg(long, help = "Set the path to the journal file and update config")]
     set_journal: Option<String>,
+
+    #[arg(long, help = "Used to delete a journal entry by its index")]
+    delete_entry: Option<usize>,
 }
 
 fn main() {
@@ -81,6 +84,12 @@ fn main() {
     if args.entry.is_empty() {
         eprintln!("No entry provided. Use --help for usage information.");
         std::process::exit(1);
+    }
+
+    // If the user wants to delete an entry, do so and exit.
+    if let Some(entry_index) = args.delete_entry {
+        delete_entry(journal_path, entry_index);
+        return;
     }
 
     // Combine the entry arguments into a single string and add the entry to the journal.
@@ -240,4 +249,30 @@ fn load_or_create_config() -> Config {
 
         config
     }
+}
+
+fn delete_entry(journal_path: &Path, entry_index: usize) {
+    // Check if the journal file exists. If not, exit.
+    if !journal_path.exists() {
+        eprintln!("No journal file found.");
+        std::process::exit(1);
+    }
+
+    // Read the journal file and deserialize the entries.
+    let content = fs::read_to_string(journal_path).expect("Failed to read journal file");
+    let mut entries: Vec<JournalEntry> = serde_json::from_str(&content).expect("Failed to parse journal");
+
+    // Check if the entry index is valid.
+    if entry_index == 0 || entry_index > entries.len() {
+        eprintln!("Invalid entry index.");
+        std::process::exit(1);
+    }
+
+    // Remove the specified entry.
+    entries.remove(entry_index - 1);
+
+    // Serialize the updated entries and write them back to the file.
+    let serialized = serde_json::to_string_pretty(&entries).expect("Failed to serialize journal entries");
+    fs::write(journal_path, serialized).expect("Failed to write to journal file");
+    println!("Journal entry {} deleted successfully.", entry_index);
 }
