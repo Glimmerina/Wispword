@@ -48,3 +48,5 @@ V2 is now Command Line based, no more running the application.
 I'm in the process of refactoring it because at the moment all the code lives in fn main() and my friend Brad will yell at me if he notices. It will be sorted soon.
 
 It's now fully refactored! The code no longer all lives in main!
+
+The code now has a delete function. You can delete entries if you don't want them. It uses programmer logic (the first entry is position 0) so the code automatically runs a -1. Eg if you want to delete the first entry, you can tell it to delete entry 1, and it will automatically adjust to delete entry 0. Binary logic be damned.
