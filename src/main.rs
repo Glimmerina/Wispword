@@ -43,6 +43,9 @@ struct Cli {
 
     #[arg(long, help = "Used to delete a journal entry by its index")]
     delete_entry: Option<usize>,
+
+    #[arg(long, help = "Create a timestamped backup of the journal")]
+    backup: bool,
 }
 
 fn main() {
@@ -84,6 +87,11 @@ fn main() {
     if args.entry.is_empty() {
         eprintln!("No entry provided. Use --help for usage information.");
         std::process::exit(1);
+    }
+
+    if args.backup {
+        create_backup(journal_path);
+        return;
     }
 
     // If the user wants to delete an entry, do so and exit.
@@ -275,4 +283,33 @@ fn delete_entry(journal_path: &Path, entry_index: usize) {
     let serialized = serde_json::to_string_pretty(&entries).expect("Failed to serialize journal entries");
     fs::write(journal_path, serialized).expect("Failed to write to journal file");
     println!("Journal entry {} deleted successfully.", entry_index);
+}
+
+// If the user prompts to create a backup, this function will make one. Because I'm cool like that and data management is important.
+fn create_backup(journal_path: &Path) {
+    // Check if the journal file exists. If not, exit.
+    if !journal_path.exists() {
+        eprintln!("No journal file found to backup.");
+        std::process::exit(1);
+    }
+
+    // Read the journal content
+    let content = fs::read_to_string(journal_path)
+        .expect("Failed to read journal file");
+
+    // Generate a timestamped backup filename.
+
+    let timestamp = chrono::Local::now().format("backup_%Y-%m-%d_%H-%M-%S.json");
+    let backup_filename = timestamp.to_string();
+
+    // Use the same directory as the journal file
+    // I might update this later to create a Backups directory but for now, this will do.
+    let backup_path = journal_path.with_file_name(backup_filename);
+
+    // Write the backup file
+    fs::write(&backup_path, content)
+        .expect("Failed to write backup file");
+
+    println!("Backup created: {}", backup_path.display());
+    
 }
