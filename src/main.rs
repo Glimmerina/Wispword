@@ -1,7 +1,9 @@
 // V2 but refactored for better structure and error handling.
 // Uses filesystem, path handling, clap for argument parsing and serde for serialisation/deserialisation
+// Interactive Mode requires Self, Write.
 use std::fs;
 use std::path::Path;
+use std::io::{self, Write};
 use clap::Parser;
 use serde::{Serialize, Deserialize};
 
@@ -46,7 +48,12 @@ struct Cli {
 
     #[arg(long, help = "Create a timestamped backup of the journal")]
     backup: bool,
+
+    #[arg(long, help = "Enter journal entry interactively")]
+    interactive: bool,
+
 }
+
 
 fn main() {
 
@@ -57,6 +64,19 @@ fn main() {
     let args = Cli::parse();
     let config = load_or_create_config();
     let journal_path = Path::new(&config.journal_path);
+
+    // If the user wants to enter an entry interactively, prompt for it.
+    if args.interactive {
+        // If the user also provided entry text, show an error and exit.
+        if !args.entry.is_empty() {
+            eprintln!("Error: Do not use --interactive and entry text together.");
+            std::process::exit(1);
+        }
+        // Prompt the user for the entry text.
+        let entry = interactive_prompt();
+        add_entry(journal_path, entry, args.tag);
+        return;
+    }
 
     // If the user requested to show tags, then show them.
     if args.show_tags {
@@ -89,6 +109,7 @@ fn main() {
         std::process::exit(1);
     }
 
+    // If the user wants to create a backup, do so and exit.
     if args.backup {
         create_backup(journal_path);
         return;
@@ -311,5 +332,49 @@ fn create_backup(journal_path: &Path) {
         .expect("Failed to write backup file");
 
     println!("Backup created: {}", backup_path.display());
-    
+
+}
+
+// Interactive Mode: Lets the user type multi line entries and finish by entering an empty line.
+fn interactive_prompt() -> String {
+    // Prompts the user for a journal entry interactively.
+    println!("🖋️ Wispword Interactive Mode\n");
+    println!("Type your journal entry, darling! Press ENTER on an empty line to finish.");
+
+    // Collect lines of the entry until an empty line is entered.
+    let mut entry_lines = Vec::new();
+
+    // Loop to read lines until an empty line is entered.
+    loop {  
+        // Prompt for input
+        print!("> ");
+        io::stdout().flush().unwrap();
+
+        // Read a line from stdin
+        let mut line = String::new();
+        io::stdin().read_line(&mut line).unwrap();
+        // Trim the line to remove trailing newline characters
+        let trimmed = line.trim_end();
+
+        // If the line is empty, break the loop. The entry is done.
+        if trimmed.is_empty() {
+            break;
+        }
+
+        // Otherwise, add the line to the entry.
+        entry_lines.push(trimmed.to_string());
+    }
+
+    // Join the lines into a single entry string.
+    let full_entry = entry_lines.join("\n");
+
+    // If no entry was provided, exit with an error.
+    if full_entry.trim().is_empty() {
+        eprintln!("No entry entered. Aborting.");
+        std::process::exit(1);
+    }
+
+    // Confirm entry capture.
+    println!("\n✅ Entry captured!");
+    full_entry
 }
