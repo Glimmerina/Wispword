@@ -10,11 +10,13 @@ It will automatically create a Wispword folder in your documents that includes a
 List of commands (To be updated when this can be installed as a CLI tool)
 
 Make an entry: Cargo run [Journal Text Goes here]
+Make a multiple line entry: Cargo run -- --interactive (Type in one line. Press enter. Type in your next line. Continues until you press enter on a blank entry)
 Make an entry with a tag: Cargo run [Journal Text Goes Here] --tag [Tag Name Goes Here]
 Read your journal: Cargo run --read
 Read your journal but filter by tag: Cargo run --read --filter-tag [Tag Name Goes Here]
 Read journal but only show tags: Cargo run -- --show-tags
 Change your journal location: Cargo run -- --set-journal [Directory Name here]
+
 
 So far I think this will only work on Mac, but I can test it and find out!
 
