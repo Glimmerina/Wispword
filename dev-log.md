@@ -50,3 +50,5 @@ I'm in the process of refactoring it because at the moment all the code lives in
 It's now fully refactored! The code no longer all lives in main!
 
 The code now has a delete function. You can delete entries if you don't want them. It uses programmer logic (the first entry is position 0) so the code automatically runs a -1. Eg if you want to delete the first entry, you can tell it to delete entry 1, and it will automatically adjust to delete entry 0. Binary logic be damned.
+
+Interactive mode is now live! You can use --interactive to do multiple line entries! After you enter interactive mode, you get prompted to enter a line. It keeps prompting you to enter more lines endlessly until you hit enter with a blank line. A blank entry tells the code to terminate the loop and it submits your entry to the journal. Freedom!
