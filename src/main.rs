@@ -1,11 +1,13 @@
 // V2 but refactored for better structure and error handling.
 // Uses filesystem, path handling, clap for argument parsing and serde for serialisation/deserialisation
 // Interactive Mode requires Self, Write.
+// Hashmap is used for stats. We need it to count tags.
 use std::fs;
 use std::path::Path;
 use std::io::{self, Write};
 use clap::Parser;
 use serde::{Serialize, Deserialize};
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize)]
 // Setting up a config struct so we can load directory paths from a config file. Globalise the code!
@@ -25,6 +27,7 @@ struct JournalEntry {
 struct Cli {
     // Allows arguements for the entry, a tag if desired, the option to show tags, read entries, and filter by tag.
     // Now also has an option to set the journal path and update the config file.
+    // Also has options to delete entries, create backups, enter interactively, and show stats. I'm on a roll with these features!
     #[arg(required = false, help = "The journal entry to be added")]
     entry: Vec<String>,
 
@@ -52,6 +55,8 @@ struct Cli {
     #[arg(long, help = "Enter journal entry interactively")]
     interactive: bool,
 
+    #[arg(long, help = "Display journal usage statistics")]
+    stats: bool,
 }
 
 
@@ -103,16 +108,23 @@ fn main() {
         return;
     }
 
+        // How am I becoming an IF/ELSE developer. There has gotta be a better way than this.
+    // If the user enters the stats command, show stats and exit.
+    if args.stats {
+        show_stats(journal_path);
+        return;
+    }
+
+        // If the user wants to create a backup, do so and exit.
+    if args.backup {
+        create_backup(journal_path);
+        return;
+    }
+    
     // If no entry is provided, show an error and exit. Gives a help message too because I'm cool like that.
     if args.entry.is_empty() {
         eprintln!("No entry provided. Use --help for usage information.");
         std::process::exit(1);
-    }
-
-    // If the user wants to create a backup, do so and exit.
-    if args.backup {
-        create_backup(journal_path);
-        return;
     }
 
     // If the user wants to delete an entry, do so and exit.
@@ -377,4 +389,73 @@ fn interactive_prompt() -> String {
     // Confirm entry capture.
     println!("\n✅ Entry captured!");
     full_entry
+}
+
+// Function to show journal statistics. I don't know why we'd ever need this but I'm running out of ideas for this app.
+// It could be useful someday I guess.
+fn show_stats(journal_path: &Path) {
+    // Check if the journal file exists. If not, exit.
+    if !journal_path.exists() {
+        eprintln!("No journal file found.");
+        std::process::exit(1);
+    }
+
+    // Read the journal file and deserialize the entries.
+    let content = fs::read_to_string(journal_path).expect("Failed to read journal file");
+    let entries: Vec<JournalEntry> = match serde_json::from_str(&content) {
+        Ok(data) => data,
+        Err(_) => {
+            eprintln!("Failed to parse journal file.");
+            std::process::exit(1);
+        }
+    };
+
+    // If there are no entries, inform the user and exit.
+    if entries.is_empty() {
+        println!("Your journal is empty.");
+        return;
+    }
+
+    // Variable for how many entries there are in total.
+    let total = entries.len();
+
+    // Variables for first and last entry timestamps.
+    let first_entry = entries.first().unwrap().timestamp.clone();
+    let last_entry = entries.last().unwrap().timestamp.clone();
+
+    // Variables for the most common tags and how many entries don't have tags.
+    let mut tag_counts: HashMap<String, usize> = HashMap::new();
+    let mut untagged = 0;
+
+    // For each entry in the journal, count the tags and those without tags.
+    for entry in &entries {
+        match &entry.tag {
+            Some(tag) => *tag_counts.entry(tag.clone()).or_insert(0) += 1,
+            None => untagged += 1,
+        }
+    }
+
+    // Uses the hashmap to find the most common tag. If no tags exist, it shows "None".
+    let most_common_tag = tag_counts
+        .iter()
+        .max_by_key(|(_, count)| *count)
+        .map(|(tag, count)| format!("{} (used {} times)", tag, count))
+        .unwrap_or_else(|| "None".to_string());
+
+    // Calculates the average entry length in words. Averages are calculated to one decimal place.
+    // I went with words rather than characters because anyone who counts their journaling by characters is a psycho.
+    let total_words: usize = entries.iter()
+        .map(|e| e.entry.split_whitespace().count())
+        .sum();
+    let average_words = total_words as f64 / total as f64;
+
+    // Ends by displaying the stats. It's a bit of a wall of text but the alternative was to write them to a file.
+    // All print their variables except for average words which is formatted to one decimal place.
+    println!("\n📊 Wispword Journal Stats:\n");
+    println!("- Total Entries: {}", total);
+    println!("- First Entry: {}", first_entry);
+    println!("- Most Recent Entry: {}", last_entry);
+    println!("- Most Common Tag: {}", most_common_tag);
+    println!("- Untagged Entries: {}", untagged);
+    println!("- Average Entry Length: {:.1} words", average_words);
 }
