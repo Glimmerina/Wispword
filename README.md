@@ -16,7 +16,7 @@ Read your journal: Cargo run --read
 Read your journal but filter by tag: Cargo run --read --filter-tag [Tag Name Goes Here]
 Read journal but only show tags: Cargo run -- --show-tags
 Change your journal location: Cargo run -- --set-journal [Directory Name here]
-
+Generate journal statistics: Cargo run -- --stats
 
 So far I think this will only work on Mac, but I can test it and find out!
 
