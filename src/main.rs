@@ -57,6 +57,9 @@ struct Cli {
 
     #[arg(long, help = "Display journal usage statistics")]
     stats: bool,
+
+    #[arg(long, help = "Search journal entries for a word or phrase")]
+    search: Option<String>,
 }
 
 
@@ -89,6 +92,12 @@ fn main() {
         return;
     }
 
+    // If the user wants to search for tags, search them and display all etries with that tag.
+    if let Some(query) = args.search.clone() {
+        search_entries(journal_path, &query);
+        return;
+    }
+
     // If the user wants to set a new journal path, update the config file and exit.
     if let Some(new_path) = &args.set_journal {
         let config_path = get_config_path();
@@ -108,19 +117,19 @@ fn main() {
         return;
     }
 
-        // How am I becoming an IF/ELSE developer. There has gotta be a better way than this.
+    // How am I becoming an IF/ELSE developer. There has gotta be a better way than this.
     // If the user enters the stats command, show stats and exit.
     if args.stats {
         show_stats(journal_path);
         return;
     }
 
-        // If the user wants to create a backup, do so and exit.
+    // If the user wants to create a backup, do so and exit.
     if args.backup {
         create_backup(journal_path);
         return;
     }
-    
+
     // If no entry is provided, show an error and exit. Gives a help message too because I'm cool like that.
     if args.entry.is_empty() {
         eprintln!("No entry provided. Use --help for usage information.");
@@ -458,4 +467,45 @@ fn show_stats(journal_path: &Path) {
     println!("- Most Common Tag: {}", most_common_tag);
     println!("- Untagged Entries: {}", untagged);
     println!("- Average Entry Length: {:.1} words", average_words);
+}
+
+fn search_entries(journal_path: &Path) {
+    // If the journal file doesn't exist, inform the user and exit.
+    if !journal_path.exists() {
+        eprintln!("No journal found.");
+        std::process::exit(1);
+    }
+
+    let content = fs::read_to_string(journal_path)
+        .expect("Failed to read journal file");
+
+    let entries: Vec<JournalEntry> = serde_json::from_str(&content)
+        .unwrap_or_default();
+
+    let query_lower = query.to_lowercase();
+
+    let results: Vec<_> = entries.iter()
+        .enumerate()
+        .filter(|(_, entry)| {
+            entry.entry.to_lowercase().contains(&query_lower)
+                || entry.tag.as_deref()
+                    .unwrap_or("")
+                    .to_lowercase()
+                    .contains(&query_lower)
+        })
+        .collect();
+
+    if results.is_empty() {
+        println!("No entries found containing \"{}\".", query);
+        return;
+    }
+
+    println!("🔍 Entries containing \"{}\":\n", query);
+
+    for (i, entry) in results {
+        println!("Entry {}:", i + 1);
+        println!("  Date: {}", entry.timestamp);
+        println!("  Tag: {}", entry.tag.as_deref().unwrap_or("None"));
+        println!("  Text: {}\n", entry.entry);
+    }
 }
