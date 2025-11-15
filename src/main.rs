@@ -469,7 +469,7 @@ fn show_stats(journal_path: &Path) {
     println!("- Average Entry Length: {:.1} words", average_words);
 }
 
-fn search_entries(journal_path: &Path) {
+fn search_entries(journal_path: &Path, query: &str) {
     // If the journal file doesn't exist, inform the user and exit.
     if !journal_path.exists() {
         eprintln!("No journal found.");
