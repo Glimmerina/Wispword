@@ -14,6 +14,7 @@ Make a multiple line entry: Cargo run -- --interactive (Type in one line. Press 
 Make an entry with a tag: Cargo run [Journal Text Goes Here] --tag [Tag Name Goes Here]
 Read your journal: Cargo run --read
 Read your journal but filter by tag: Cargo run --read --filter-tag [Tag Name Goes Here]
+Read your journal but only display entries with the a specific tag: Cargo run -- --search [Tag Name Goes Here]
 Read journal but only show tags: Cargo run -- --show-tags
 Change your journal location: Cargo run -- --set-journal [Directory Name here]
 Generate journal statistics: Cargo run -- --stats
