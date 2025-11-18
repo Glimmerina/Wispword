@@ -40,6 +40,7 @@ struct Cli {
     #[arg(long, help = "Used to read the journal entries")]
     read: bool,
 
+    // Removing this in the next update as it's made redundant by the better Search function.
     #[arg(long, help = "Filter journal entries by a specific tag")]
     filter_tag: Option<String>,
 
