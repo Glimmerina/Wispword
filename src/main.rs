@@ -61,6 +61,9 @@ struct Cli {
 
     #[arg(long, help = "Search journal entries for a word or phrase")]
     search: Option<String>,
+
+    #[arg(long, help = "Set a password for journal encryption (not yet implemented)")]
+    set_password: Option<String>,
 }
 
 
